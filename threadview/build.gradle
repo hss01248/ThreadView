@@ -36,3 +36,17 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'me.weishu:epic:0.8.1-c'
 }
+
+apply plugin: 'maven'
+
+group = 'com.github.hss01248'
+version = '1.0.4'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            //repository(url: "file://[your local maven path here]")
+            repository(url: mavenLocal().getUrl())
+        }
+    }
+}

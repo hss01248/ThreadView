@@ -23,18 +23,24 @@ public class ThreadListViewHolder {
     ListView listView;
     BaseAdapter adapter;
     List<WeakReference<Thread>> list;
+    TextView textView;
 
 
     public ThreadListViewHolder(Context context){
         root = View.inflate(context,R.layout.threadview_list,null);
         listView = root.findViewById(R.id.listview);
         initListView(listView);
-        root.findViewById(R.id.tv_refresh).setOnClickListener(new View.OnClickListener() {
+        textView = root.findViewById(R.id.tv_refresh);
+        textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 refresh();
+                String text = "refresh("+adapter.getCount()+")";
+                textView.setText("refresh"+text);
             }
         });
+        String text = "refresh("+adapter.getCount()+")";
+        textView.setText("refresh"+text);
 
     }
 

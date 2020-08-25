@@ -18,6 +18,8 @@ import android.view.Gravity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -40,8 +42,24 @@ public class ThreadHookUtil {
         List<WeakReference<Thread>> list = new ArrayList<>();
       Iterator<Thread> threadIterator =  map.keySet().iterator();
       while (threadIterator.hasNext()){
-          list.add(new WeakReference<>(threadIterator.next()));
+          Thread thread = threadIterator.next();
+          if(!thread.getState().equals(Thread.State.TERMINATED)){
+              list.add(new WeakReference<>(thread));
+          }
+          //thread.getState().equals(Thread.State.TERMINATED)
+
       }
+        Collections.sort(list, new Comparator<WeakReference<Thread>>() {
+            @Override
+            public int compare(WeakReference<Thread> t1, WeakReference<Thread> t2) {
+                try {
+                    return t1.get().getName().compareTo(t2.get().getName());
+                }catch (Throwable throwable){
+                    return 0;
+                }
+            }
+        });
+
       Log.d(TAG,"getall,size:"+list.size());
       return list;
 
@@ -153,10 +171,13 @@ public class ThreadHookUtil {
         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
             super.afterHookedMethod(param);
             Thread t = (Thread) param.thisObject;
+            if(map.containsKey(t)){
+                return;
+            }
             Log.i(TAG, "thread:" + t + ", started");
             count++;
-            Log.i(TAG, "thread count:" + count);
 
+            Log.i(TAG, "thread count:" + count);
            StackTraceElement[] stackTraceElements =  new Exception().getStackTrace();
             StackTraceElement[] stackTraceElements2 = new StackTraceElement[stackTraceElements.length -5];
             for (int i = 0; i < stackTraceElements.length-5; i++) {
