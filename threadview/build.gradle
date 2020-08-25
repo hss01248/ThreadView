@@ -40,7 +40,7 @@ dependencies {
 apply plugin: 'maven'
 
 group = 'com.github.hss01248'
-version = '1.0.4'
+version = '1.0.5'
 
 uploadArchives {
     repositories {

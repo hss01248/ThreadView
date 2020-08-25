@@ -34,17 +34,25 @@ public class ThreadHookUtil {
     static WeakHashMap<Thread,StackTraceElement[]> map = new WeakHashMap<>();
 
     static boolean initSuccess = false;
+    static int alive;
+    static int terminated;
 
     public static List<WeakReference<Thread>> getAll(){
         if(!initSuccess){
             return new ArrayList<>();
         }
+        alive  = 0;
+        terminated = 0;
+
         List<WeakReference<Thread>> list = new ArrayList<>();
+        List<WeakReference<Thread>> list2 = new ArrayList<>();
       Iterator<Thread> threadIterator =  map.keySet().iterator();
       while (threadIterator.hasNext()){
           Thread thread = threadIterator.next();
           if(!thread.getState().equals(Thread.State.TERMINATED)){
               list.add(new WeakReference<>(thread));
+          }else {
+              list2.add(new WeakReference<>(thread));
           }
           //thread.getState().equals(Thread.State.TERMINATED)
 
@@ -59,7 +67,19 @@ public class ThreadHookUtil {
                 }
             }
         });
-
+        Collections.sort(list2, new Comparator<WeakReference<Thread>>() {
+            @Override
+            public int compare(WeakReference<Thread> t1, WeakReference<Thread> t2) {
+                try {
+                    return t1.get().getName().compareTo(t2.get().getName());
+                }catch (Throwable throwable){
+                    return 0;
+                }
+            }
+        });
+      alive = list.size();
+      terminated = list2.size();
+      list.addAll(list2);
       Log.d(TAG,"getall,size:"+list.size());
       return list;
 
