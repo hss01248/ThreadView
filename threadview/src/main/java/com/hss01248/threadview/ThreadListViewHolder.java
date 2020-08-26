@@ -36,11 +36,11 @@ public class ThreadListViewHolder {
             public void onClick(View view) {
                 refresh();
                 String text = "refresh("+adapter.getCount()+")->\nalive:"+ThreadHookUtil.alive+",dead:"+ThreadHookUtil.terminated;
-                textView.setText("refresh"+text);
+                textView.setText(text);
             }
         });
         String text = "refresh("+adapter.getCount()+")->\nalive:"+ThreadHookUtil.alive+",dead:"+ThreadHookUtil.terminated;
-        textView.setText("refresh"+text);
+        textView.setText(text);
 
     }
 

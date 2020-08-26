@@ -39,5 +39,27 @@ public class FirstFragment extends Fragment {
                 ThreadHookUtil.showThreadList(getActivity());
             }
         });
+        view.findViewById(R.id.createthreads).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createThreads();
+            }
+        });
+    }
+
+    private void createThreads() {
+        //内存占用只增大了1M不到
+        for (int i = 0; i < 100; i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(60000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            },"memory-"+i).start();
+        }
     }
 }
