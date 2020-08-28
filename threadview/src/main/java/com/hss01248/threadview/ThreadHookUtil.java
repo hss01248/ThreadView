@@ -24,8 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
 
-import de.robv.android.xposed.DexposedBridge;
-import de.robv.android.xposed.XC_MethodHook;
+import top.canyie.pine.Pine;
+import top.canyie.pine.callback.MethodHook;
 
 
 public class ThreadHookUtil {
@@ -93,23 +93,29 @@ public class ThreadHookUtil {
         if(!isDebuggable(application)){
             Log.w(TAG,"非debug包,不hook");
         }
-        DexposedBridge.hookAllConstructors(Thread.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                Thread thread = (Thread) param.thisObject;
-                //thread.setUncaughtExceptionHandler(new SafeHandler());
-                Class<?> clazz = thread.getClass();
-                if (clazz != Thread.class) {
-                    Log.d(TAG, "found class extend Thread:" + clazz);
-                    //DexposedBridge.findAndHookMethod(clazz, "run", new ThreadMethodHook());
-                }
-                DexposedBridge.findAndHookMethod(clazz, "start", new ThreadStartMethodHook());
-                Log.d(TAG, "Thread: " + thread.getName() + " class:" + thread.getClass() +  " is created.");
-            }
-        });
+        try {
+            Pine.hook(Thread.class.getConstructor(Runnable.class), new MethodHook() {
+                 public void afterCall(Pine.CallFrame  param) throws Throwable {
+                     Thread thread = (Thread) param.thisObject;
+                     //thread.setUncaughtExceptionHandler(new SafeHandler());
+                     Class<?> clazz = thread.getClass();
+                     if (clazz != Thread.class) {
+                         Log.d(TAG, "found class extend Thread:" + clazz);
+                         //DexposedBridge.findAndHookMethod(clazz, "run", new ThreadMethodHook());
+                     }
+                     Pine.hook(clazz.getDeclaredMethod("start"), new ThreadStartMethodHook());
+                     Log.d(TAG, "Thread: " + thread.getName() + " class:" + thread.getClass() + " is created.");
+                 }
+             });
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
         //DexposedBridge.findAndHookMethod(Thread.class, "run", new ThreadMethodHook());
-        DexposedBridge.findAndHookMethod(Thread.class, "start", new ThreadStartMethodHook());
+        try {
+            Pine.hook(Thread.class.getDeclaredMethod("start"), new ThreadStartMethodHook());
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
         initSuccess = true;
     }
 
@@ -161,35 +167,17 @@ public class ThreadHookUtil {
         return false;
     }
 
-   static class ThreadMethodHook extends XC_MethodHook {
+
+    static class ThreadStartMethodHook extends MethodHook {
 
         @Override
-        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-            super.beforeHookedMethod(param);
-            Thread t = (Thread) param.thisObject;
-            Log.i(TAG, "thread:" + t + ", started..");
-        }
-
-        @Override
-        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-            super.afterHookedMethod(param);
-            Thread t = (Thread) param.thisObject;
-            Log.i(TAG, "thread:" + t + ", exit..");
-        }
-    }
-
-    static class ThreadStartMethodHook extends XC_MethodHook {
-
-        @Override
-        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-            super.beforeHookedMethod(param);
+        public void beforeCall(Pine.CallFrame param) throws Throwable {
             Thread t = (Thread) param.thisObject;
             Log.i(TAG, "thread:" + t + ", start begin..");
         }
 
         @Override
-        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-            super.afterHookedMethod(param);
+        public void afterCall(Pine.CallFrame param) throws Throwable {
             Thread t = (Thread) param.thisObject;
             if(map.containsKey(t)){
                 return;

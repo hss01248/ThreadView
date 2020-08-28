@@ -34,7 +34,8 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'me.weishu:epic:0.8.1-c'
+    //implementation 'me.weishu:epic:0.8.1-c'
+    implementation 'top.canyie.pine:core:0.1.10'
 }
 
 apply plugin: 'maven'
