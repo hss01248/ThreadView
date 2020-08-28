@@ -16,8 +16,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Gravity;
 
-import com.swift.sandhook.xposedcompat.XposedCompat;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,8 +23,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
+
+import de.robv.android.xposed.DexposedBridge;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedHelpers;
 
 
 public class ThreadHookUtil {
@@ -87,20 +86,14 @@ public class ThreadHookUtil {
     }
 
     public static void hookThread(Application application){
-       /* if(isEmulator(application)){
+        if(isEmulator(application)){
             Log.w(TAG,"模拟器,不hook");
             return;
         }
         if(!isDebuggable(application)){
             Log.w(TAG,"非debug包,不hook");
-        }*/
-        //setup for xposed
-        XposedCompat.cacheDir = application.getCacheDir();
-        XposedCompat.context = application;
-        XposedCompat.classLoader = application.getClassLoader();
-        XposedCompat.isFirstApplication= true;
-//do hook
-        XposedHelpers.findAndHookConstructor(Thread.class,Runnable.class, new XC_MethodHook() {
+        }
+        DexposedBridge.hookAllConstructors(Thread.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 super.afterHookedMethod(param);
@@ -111,12 +104,12 @@ public class ThreadHookUtil {
                     Log.d(TAG, "found class extend Thread:" + clazz);
                     //DexposedBridge.findAndHookMethod(clazz, "run", new ThreadMethodHook());
                 }
-                XposedHelpers.findAndHookMethod(clazz, "start", new ThreadStartMethodHook());
+                DexposedBridge.findAndHookMethod(clazz, "start", new ThreadStartMethodHook());
                 Log.d(TAG, "Thread: " + thread.getName() + " class:" + thread.getClass() +  " is created.");
             }
         });
         //DexposedBridge.findAndHookMethod(Thread.class, "run", new ThreadMethodHook());
-        XposedHelpers.findAndHookMethod(Thread.class, "start", new ThreadStartMethodHook());
+        DexposedBridge.findAndHookMethod(Thread.class, "start", new ThreadStartMethodHook());
         initSuccess = true;
     }
 

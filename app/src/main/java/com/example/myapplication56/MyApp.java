@@ -9,6 +9,6 @@ public class MyApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        ThreadHookUtil.hookThread(this);
+        //ThreadHookUtil.hookThread(this);
     }
 }

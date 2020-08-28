@@ -14,9 +14,8 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
 
-
+import de.robv.android.xposed.DexposedBridge;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedHelpers;
 
 public class ObjWatcher {
     static String TAG = "ObjWatcherHook";
@@ -34,7 +33,7 @@ public class ObjWatcher {
         if(!map.containsKey(clazz)){
             map.put(clazz,new WeakHashMap<>());
         }
-        XposedHelpers.findAndHookConstructor(clazz, new XC_MethodHook() {
+        DexposedBridge.hookAllConstructors(clazz, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 super.afterHookedMethod(param);
