@@ -113,7 +113,7 @@ public class ThreadHookUtil {
         initSuccess = true;
     }
 
-     static boolean isDebuggable(Application application) {
+    public static boolean isDebuggable(Application application) {
         boolean debuggable = false;
         PackageManager pm = application.getPackageManager();
         try{
@@ -125,7 +125,7 @@ public class ThreadHookUtil {
         return debuggable;
     }
 
-     static boolean isEmulator(Application application) {
+    public static boolean isEmulator(Application application) {
         boolean checkProperty = Build.FINGERPRINT.startsWith("generic")
                 || Build.FINGERPRINT.toLowerCase().contains("vbox")
                 || Build.FINGERPRINT.toLowerCase().contains("test-keys")
